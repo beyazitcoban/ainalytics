@@ -1,0 +1,104 @@
+# xcodegen spec — Ainalytics (macOS, swift-swiftui-macos stack).
+# Regenerate the Xcode project with: xcodegen generate
+# The generated Ainalytics.xcodeproj is gitignored-by-convention NOT — it is
+# committed, but project.yml is the source of truth for structure changes.
+name: Ainalytics
+options:
+  bundleIdPrefix: com.beyazit
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "100"
+    DEVELOPMENT_TEAM: "2G7T76698G"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: YES
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
+targets:
+  Ainalytics:
+    type: application
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: Ainalytics
+        excludes:
+          - "**/.gitkeep"
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyazit.ainalytics
+        PRODUCT_NAME: Ainalytics
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Ainalytics/Resources/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        COMBINE_HIDPI_IMAGES: YES
+        CODE_SIGN_ENTITLEMENTS: Ainalytics/Ainalytics.entitlements
+    dependencies:
+      # Embeds the widget extension into the app bundle (Contents/PlugIns).
+      - target: AinalyticsWidget
+      # Sparkle — in-app .dmg auto-update (EdDSA-signed appcast).
+      - package: Sparkle
+  AinalyticsWidget:
+    type: app-extension
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: AinalyticsWidget
+      - path: Shared
+      # Share the one String Catalog so the widget's strings localize in all 5 languages.
+      - path: Ainalytics/Resources/Localizable.xcstrings
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyazit.ainalytics.widget
+        PRODUCT_NAME: AinalyticsWidget
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: AinalyticsWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: AinalyticsWidget/AinalyticsWidget.entitlements
+        SKIP_INSTALL: YES
+    dependencies:
+      - sdk: WidgetKit.framework
+  AinalyticsTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - AinalyticsTests
+    dependencies:
+      - target: Ainalytics
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyazit.ainalytics.tests
+        GENERATE_INFOPLIST_FILE: YES
+  AinalyticsUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - AinalyticsUITests
+    dependencies:
+      - target: Ainalytics
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beyazit.ainalytics.uitests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Ainalytics:
+    build:
+      targets:
+        Ainalytics: all
+        AinalyticsWidget: all
+        AinalyticsTests: [test]
+        AinalyticsUITests: [test]
+    test:
+      targets:
+        - AinalyticsTests
+        - AinalyticsUITests

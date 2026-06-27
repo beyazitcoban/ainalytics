@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- The project's first entitlement (Phase 12). App Sandbox stays OFF for the
+         main app (it must read other tools' credential files); this grants only the
+         App Group container shared with the widget extension. macOS App Group IDs
+         are Team-ID-prefixed. -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>2G7T76698G.com.beyazit.ainalytics</string>
+    </array>
+</dict>
+</plist>

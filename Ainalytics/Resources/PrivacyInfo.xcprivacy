@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Ainalytics privacy manifest.
+
+  Ainalytics collects NOTHING and tracks NOTHING. It reads local AI CLI
+  credentials read-only, in memory, to query each provider's own usage
+  endpoint, and reads local CLI log files for on-device activity/cost charts.
+  No analytics, no crash reporting, no network destination other than the
+  three providers' own APIs. Zero telemetry is a load-bearing project decision.
+
+  NSPrivacyAccessedAPITypes below declares the one Required-Reason API the app
+  uses where a documented reason cleanly applies (UserDefaults, for its own
+  settings). The app also reads file modification timestamps to skip unchanged
+  logs, but those files live outside the app container, so no Required-Reason
+  category models that use — and it is moot here: this app ships .dmg-only
+  (App Sandbox off → Mac App Store is not a target), so Required-Reason
+  enforcement does not apply. The declarations that matter for trust are the
+  three below: no tracking, no tracking domains, no collected data.
+-->
+<plist version="1.0">
+<dict>
+    <key>NSPrivacyTracking</key>
+    <false/>
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>

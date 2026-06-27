@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Widget extensions are always sandboxed, even though the main app is not.
+         The App Group entitlement (same identifier as the main app) lets the
+         sandboxed widget reach the shared usage snapshot in the group container. -->
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>2G7T76698G.com.beyazit.ainalytics</string>
+    </array>
+</dict>
+</plist>

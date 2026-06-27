@@ -1,0 +1,43 @@
+# === Xcode ===
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# === Swift Package Manager ===
+.build/
+.swiftpm/
+# Package.resolved IS tracked — it pins Sparkle's exact version for reproducible
+# builds (important for a security-sensitive auto-update framework).
+
+# === CocoaPods (defensive — not used in this stack) ===
+Pods/
+
+# === Build outputs ===
+build/
+*.app
+*.dSYM.zip
+*.dSYM
+*.dmg
+*.pkg
+
+# === Notarization staging ===
+notarization-staging/
+
+# === Local config (xcconfig with secrets — API keys, etc.) ===
+*.local.xcconfig
+
+# === Signing / notarization secrets (these live outside the repo, never in it) ===
+*.p8
+AuthKey_*.p8
+*.cer
+*.p12
+*.certSigningRequest
+*.mobileprovision
+
+# === Editor / OS ===
+.DS_Store
+.vscode/
+.idea/
+*.swp
