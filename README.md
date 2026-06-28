@@ -33,10 +33,15 @@ This is the part that matters, so it's first.
   in memory only. It is **never copied to disk, never logged, never written
   back.** If a token is expired, Ainalytics asks *you* to re-login in your CLI;
   it never refreshes or rewrites your credentials.
-- **It talks only to the providers.** With that token it calls the same private
-  usage endpoint the official CLI calls (`/api/oauth/usage` for Claude,
-  `wham/usage` for ChatGPT), impersonating the CLI. The only network
-  destinations are Anthropic's and OpenAI's own APIs.
+- **Your token talks only to the providers.** With that token it calls the same
+  private usage endpoint the official CLI calls (`/api/oauth/usage` for Claude,
+  `wham/usage` for ChatGPT), impersonating the CLI. Your credentials and usage
+  data go to **Anthropic's and OpenAI's own APIs and nowhere else**. The app
+  makes two other network calls that carry **none of your data**: an anonymous
+  fetch of a public model-price list ([models.dev](https://models.dev)) for the
+  cost estimates, and the in-app update check against the Sparkle release feed
+  on GitHub. Neither sends your token, your usage, or anything that identifies
+  you.
 - **No browser, no cookies, no Full Disk Access.** Ainalytics never reads your
   browser, never scrapes cookies, and is **not** in your Full Disk Access list.
   It reads plain home-directory dotfiles and its own Keychain item — nothing in
@@ -104,7 +109,7 @@ runtime dependencies (Sparkle is the only package, used for updates).
 
 ## A note on the endpoints
 
-Ainalytics rests on three private, undocumented usage endpoints. Anthropic and
+Ainalytics rests on two private, undocumented usage endpoints. Anthropic and
 OpenAI can change or remove them at any time without notice — if a provider
 breaks, expect a fix in a patch release, and the app keeps working for the
 others in the meantime. The data layer is deliberately swappable so a broken
