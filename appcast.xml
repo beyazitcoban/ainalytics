@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Ainalytics</title>
+    <link>https://raw.githubusercontent.com/beyazitcoban/ainalytics/main/appcast.xml</link>
+    <description>Updates for Ainalytics</description>
+    <language>en</language>
+    <item>
+      <title>Version 1.0.0</title>
+      <sparkle:version>100</sparkle:version>
+      <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <pubDate>Sun, 28 Jun 2026 22:37:15 +0300</pubDate>
+      <enclosure
+        url="https://github.com/beyazitcoban/ainalytics/releases/download/v1.0.0/Ainalytics-1.0.0.dmg"
+        sparkle:edSignature="DxMLAoy4/KgWI0iLGqFj8QqU/MHZfNnjUFF0gcR1htwB5sDmj28SiFrqhXrH9mhDBpo/x2+0qYoMfrxnp0khBw=="
+        length="4319290"
+        type="application/octet-stream" />
+    </item>
+  </channel>
+</rss>
