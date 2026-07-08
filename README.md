@@ -77,12 +77,16 @@ Fully localized: English (US/UK), Turkish, German, Spanish.
 ## Requirements
 
 - **macOS 26 (Tahoe) or later**, Apple Silicon.
-- The provider CLIs you want to track, already logged in:
-  [Claude Code](https://claude.com/claude-code) and/or the ChatGPT/Codex CLI.
+- At least one supported AI CLI **installed and logged in** — Ainalytics reads
+  the credentials these tools already store on your Mac. It never asks you to
+  log in again.
+  - [Claude Code](https://claude.com/claude-code) — Claude / Max
+  - [Codex CLI](https://github.com/openai/codex) — ChatGPT / OpenAI
 
-Each provider degrades gracefully on its own — if one endpoint changes or a CLI
-is logged out, that provider shows a "connection lost" state and the others
-keep working.
+**If neither CLI is installed and logged in, there is nothing for Ainalytics to
+read** — every provider will show a "connection lost" state. Each provider also
+degrades gracefully on its own: if one endpoint changes or a single CLI is
+logged out, that provider shows "connection lost" and the others keep working.
 
 ## Install
 
