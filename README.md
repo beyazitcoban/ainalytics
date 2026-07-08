@@ -86,15 +86,14 @@ keep working.
 
 ## Install
 
-**Homebrew (recommended):**
-
-```sh
-brew install --cask beyazitcoban/tap/ainalytics
-```
-
-**Or download the `.dmg`** from the [latest release](https://github.com/beyazitcoban/ainalytics/releases/latest),
+**Download the `.dmg`** from the [latest release](https://github.com/beyazitcoban/ainalytics/releases/latest),
 open it, and drag Ainalytics to Applications. The build is notarized, so it
 opens without Gatekeeper warnings. Updates are delivered in-app via Sparkle.
+
+Ainalytics lives in the **menu bar** — after launching, look for its icon at the
+top-right of your screen. It has no Dock icon or window.
+
+_A Homebrew cask is planned for a future release._
 
 ## Building from source
 
