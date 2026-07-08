@@ -77,24 +77,27 @@ Fully localized: English (US/UK), Turkish, German, Spanish.
 ## Requirements
 
 - **macOS 26 (Tahoe) or later**, Apple Silicon.
-- The provider CLIs you want to track, already logged in:
-  [Claude Code](https://claude.com/claude-code) and/or the ChatGPT/Codex CLI.
+- At least one supported AI CLI **installed and logged in** — Ainalytics reads
+  the credentials these tools already store on your Mac. It never asks you to
+  log in again.
+  - [Claude Code](https://claude.com/claude-code) — Claude / Max
+  - [Codex CLI](https://github.com/openai/codex) — ChatGPT / OpenAI
 
-Each provider degrades gracefully on its own — if one endpoint changes or a CLI
-is logged out, that provider shows a "connection lost" state and the others
-keep working.
+**If neither CLI is installed and logged in, there is nothing for Ainalytics to
+read** — every provider will show a "connection lost" state. Each provider also
+degrades gracefully on its own: if one endpoint changes or a single CLI is
+logged out, that provider shows "connection lost" and the others keep working.
 
 ## Install
 
-**Homebrew (recommended):**
-
-```sh
-brew install --cask beyazitcoban/tap/ainalytics
-```
-
-**Or download the `.dmg`** from the [latest release](https://github.com/beyazitcoban/ainalytics/releases/latest),
+**Download the `.dmg`** from the [latest release](https://github.com/beyazitcoban/ainalytics/releases/latest),
 open it, and drag Ainalytics to Applications. The build is notarized, so it
 opens without Gatekeeper warnings. Updates are delivered in-app via Sparkle.
+
+Ainalytics lives in the **menu bar** — after launching, look for its icon at the
+top-right of your screen. It has no Dock icon or window.
+
+_A Homebrew cask is planned for a future release._
 
 ## Building from source
 
