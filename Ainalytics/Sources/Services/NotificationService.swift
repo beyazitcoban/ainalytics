@@ -179,7 +179,9 @@ final class NotificationService {
             guard let runtime = runtimes[id], runtime.connection.isConnected else { continue }
             let muted = mutedProviders.contains(id.rawValue)
 
-            for window in runtime.windows {
+            // Only the general Session/Weekly windows arm notifications — a per-model
+            // scoped Claude limit never fires its own threshold/reset alert (Phase 17).
+            for window in runtime.generalWindows {
                 let key = "\(id.rawValue)|\(window.id)"
                 let pct = window.percentUsed
                 let windowLabel = label(for: window)

@@ -26,7 +26,7 @@ enum ProviderChoice: String, AppEnum {
     static let caseDisplayRepresentations: [ProviderChoice: DisplayRepresentation] = [
         .automatic: "Automatic",
         .claude: "Claude",
-        .codex: "ChatGPT / Codex",
+        .codex: "Codex",
         .gemini: "Gemini",
     ]
 

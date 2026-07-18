@@ -11,7 +11,7 @@ enum ProviderID: String, CaseIterable, Codable, Sendable {
     var displayName: String {
         switch self {
         case .claude: "Claude"
-        case .codex: "ChatGPT"
+        case .codex: "Codex"
         }
     }
 }
@@ -24,6 +24,7 @@ enum ProviderConnection: Equatable, Sendable {
     case notInstalled  // no credential file / keychain item found
     case tokenExpired  // credential present but expired → user re-logs in their CLI
     case endpointError(String)  // reserved for Phase 2 (fetch failures)
+    case noTrackableUsage  // connected, but the plan reports no trackable usage window (e.g. Codex Free)
 
     var isConnected: Bool { self == .connected }
 }
@@ -39,6 +40,35 @@ struct UsageWindow: Identifiable, Sendable {
     let used: Double
     let limit: Double
     let resetsAt: Date?
+    /// What this window applies to (Phase 17). `.general` = the plan-wide Session /
+    /// Weekly limits (first-class: menu bar, widget, forecast, trend, notifications
+    /// all use these). `.model` / `.surface` = a Claude weekly limit scoped to a
+    /// specific model (Fable/Sonnet/Opus) or surface (Cowork) — a secondary,
+    /// dashboard-only detail that is NOT persisted. Defaults to `.general` so every
+    /// existing call site (Codex windows, previews, tests) is unchanged.
+    var scope: UsageWindowScope = .general
+    /// Whether the provider currently reports this window as active. Only meaningful
+    /// for scoped windows (an inactive model/surface limit is hidden unless the user
+    /// opts in); general windows are always shown regardless of this flag.
+    var isActive: Bool = true
+
+    /// True for the plan-wide Session / Weekly windows — the first-class ones the
+    /// menu bar, widget, forecast, trend, plan-fit and notifications all key on.
+    var isGeneral: Bool { scope == .general }
+}
+
+/// What a `UsageWindow` limit applies to (Phase 17). Anthropic moved model- and
+/// surface-specific weekly limits out of the old top-level keys into a `limits`
+/// array carrying a `scope`; this classifies each window so the general (plan-wide)
+/// limits stay first-class while scoped ones are treated as a secondary detail.
+enum UsageWindowScope: Equatable, Sendable {
+    /// The plan-wide Session / Weekly limit (no model or surface qualifier).
+    case general
+    /// A weekly limit scoped to one model — the display name is shown verbatim
+    /// (e.g. "Fable", "Sonnet", "Opus").
+    case model(String)
+    /// A weekly limit scoped to one surface (e.g. "Cowork").
+    case surface(String)
 }
 
 /// The kind of rolling window a provider reports. Avoids stringly-typed data
@@ -60,6 +90,10 @@ enum UsageDataSourceError: Error {
     case tokenExpired
     /// Network, HTTP (non-2xx, non-401/403), or response-decoding failure.
     case endpoint(String)
+    /// Connected and readable, but this plan reports no trackable usage window
+    /// (e.g. Codex Free returns a static, meaningless monthly placeholder). Shown
+    /// as an honest "no limit reported" state rather than a misleading percentage.
+    case noTrackableUsage
 }
 
 extension UsageWindow {

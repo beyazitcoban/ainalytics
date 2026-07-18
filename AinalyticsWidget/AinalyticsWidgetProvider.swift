@@ -47,7 +47,7 @@ extension SharedUsageSnapshot {
                         kind: "unknown", title: "Sonnet", percentUsed: 0, resetsAt: .now.addingTimeInterval(4 * 86400)),
                 ]),
             Provider(
-                providerID: "codex", displayName: "ChatGPT / Codex",
+                providerID: "codex", displayName: "Codex",
                 windows: [
                     Window(kind: "monthly", title: nil, percentUsed: 9, resetsAt: .now.addingTimeInterval(20 * 86400))
                 ]),

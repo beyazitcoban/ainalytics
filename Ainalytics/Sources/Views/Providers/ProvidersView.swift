@@ -75,13 +75,20 @@ struct ProviderRow: View {
 
             if runtime.connection.isConnected {
                 VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                    ForEach(runtime.windows) { window in
+                    // Menu bar shows only the plan-wide Session/Weekly (general) windows;
+                    // model/surface-scoped Claude limits live on the dashboard (Phase 17).
+                    ForEach(runtime.generalWindows) { window in
                         windowBlock(window)
                     }
                 }
                 .padding(.leading, Self.glyphSize + Theme.Spacing.md)  // align under the name
             } else if runtime.connection == .tokenExpired {
                 Text("Re-login in your CLI to reconnect.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, Self.glyphSize + Theme.Spacing.md)
+            } else if runtime.connection == .noTrackableUsage {
+                Text("This plan doesn't report a trackable usage limit.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.leading, Self.glyphSize + Theme.Spacing.md)
@@ -178,6 +185,7 @@ extension ProviderConnection {
         case .notInstalled: "Not installed"
         case .tokenExpired: "Token expired"
         case .endpointError: "Connection lost"
+        case .noTrackableUsage: "No limit reported"
         }
     }
 
@@ -188,6 +196,7 @@ extension ProviderConnection {
         case .notInstalled: "minus.circle"
         case .tokenExpired: "exclamationmark.triangle.fill"
         case .endpointError: "xmark.octagon.fill"
+        case .noTrackableUsage: "info.circle"
         }
     }
 
@@ -198,6 +207,7 @@ extension ProviderConnection {
         case .notInstalled: .secondary
         case .tokenExpired: .orange
         case .endpointError: .red
+        case .noTrackableUsage: .secondary
         }
     }
 }
@@ -216,9 +226,12 @@ extension ProviderConnection {
                             UsageWindow(
                                 id: "seven_day", kind: .weekly, title: nil, used: 27, limit: 100,
                                 resetsAt: .now.addingTimeInterval(439_200)),
+                            // Scoped (Phase 17): excluded from the menu-bar popover —
+                            // only Session/Weekly (general) headline here.
                             UsageWindow(
-                                id: "seven_day_sonnet", kind: .unknown, title: "Sonnet", used: 0,
-                                limit: 100, resetsAt: .now.addingTimeInterval(439_200)),
+                                id: "seven_day_model_Sonnet", kind: .weekly, title: "Sonnet",
+                                used: 0, limit: 100, resetsAt: .now.addingTimeInterval(439_200),
+                                scope: .model("Sonnet"), isActive: true),
                         ],
                         lastFetched: .now, errorMessage: nil, rawResponse: nil),
                     .codex: ProviderRuntime(

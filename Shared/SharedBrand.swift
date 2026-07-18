@@ -13,7 +13,7 @@ enum SharedBrand {
     static func accentComponents(forProviderRaw raw: String) -> (red: Double, green: Double, blue: Double) {
         switch raw {
         case "claude": (0.843, 0.463, 0.333)  // #D77655 — Anthropic clay
-        case "codex": (0.063, 0.639, 0.498)  // #10A37F — OpenAI green-teal
+        case "codex": (0.224, 0.255, 1.0)  // #3941FF — Codex indigo-blue
         default: (0.55, 0.55, 0.55)  // neutral fallback
         }
     }
