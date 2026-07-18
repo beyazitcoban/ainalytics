@@ -46,14 +46,21 @@ struct ProviderUsageCard: View {
 
     @ViewBuilder private var content: some View {
         if runtime.connection.isConnected && !runtime.windows.isEmpty {
+            // Gauges show only the plan-wide Session/Weekly (general) windows; Claude's
+            // model/surface-scoped limits go to the secondary section below (Phase 17).
             LazyVGrid(columns: gaugeColumns, alignment: .leading, spacing: Theme.Spacing.md) {
-                ForEach(runtime.windows) { window in
+                ForEach(runtime.generalWindows) { window in
                     gaugeCell(window)
                 }
             }
             footer
+            ScopedLimitsView(id: id, windows: runtime.scopedWindows)
         } else if runtime.connection == .tokenExpired {
             Text("Re-login in your CLI to reconnect.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } else if runtime.connection == .noTrackableUsage {
+            Text("This plan doesn't report a trackable usage limit.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

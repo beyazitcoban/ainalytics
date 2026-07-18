@@ -6,6 +6,18 @@
     <description>Updates for Ainalytics</description>
     <language>en</language>
     <item>
+      <title>Version 1.1.0</title>
+      <sparkle:version>110</sparkle:version>
+      <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <pubDate>Sat, 18 Jul 2026 00:10:36 +0000</pubDate>
+      <enclosure
+        url="https://github.com/beyazitcoban/ainalytics/releases/download/v1.1.0/Ainalytics-1.1.0.dmg"
+        sparkle:edSignature="1JpLDoEUk+edX/xqHSK70ks/iAfdCea1wvg9HMaZDcq7LnisWfqbnP6hGhvIFYoeh/txlHJwDgSCXxaMj58NAQ=="
+        length="4115526"
+        type="application/octet-stream" />
+    </item>
+    <item>
       <title>Version 1.0.0</title>
       <sparkle:version>100</sparkle:version>
       <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>

@@ -59,6 +59,30 @@ struct SharedSnapshotTests {
         #expect(state.sharedSnapshot(pinned: nil).providers.isEmpty)
     }
 
+    /// Phase 17: scoped model/surface windows never reach the widget snapshot — only
+    /// the general Session/Weekly windows do, so the medium widget can't overflow.
+    @Test func excludesScopedWindowsFromSnapshot() {
+        let scoped = UsageWindow(
+            id: "seven_day_model_Opus", kind: .weekly, title: "Opus", used: 90, limit: 100,
+            resetsAt: nil, scope: .model("Opus"), isActive: true)
+        let state = AppState.preview([
+            .claude: connected([window(40, kind: .fiveHour), scoped])
+        ])
+        let claude = state.sharedSnapshot(pinned: nil).providers.first { $0.providerID == "claude" }
+        #expect(claude?.windows.count == 1)
+        #expect(claude?.windows.first?.kind == "fiveHour")
+    }
+
+    /// A provider reporting ONLY scoped windows (no general) is excluded entirely —
+    /// the widget headlines general windows, so there is nothing to show.
+    @Test func excludesProviderWithOnlyScopedWindows() {
+        let scoped = UsageWindow(
+            id: "seven_day_model_Opus", kind: .weekly, title: "Opus", used: 90, limit: 100,
+            resetsAt: nil, scope: .model("Opus"), isActive: true)
+        let state = AppState.preview([.claude: connected([scoped])])
+        #expect(state.sharedSnapshot(pinned: nil).providers.isEmpty)
+    }
+
     @Test func providersFollowCanonicalOrder() {
         // Output order is `ProviderID.allCases`, independent of the dictionary order.
         let state = AppState.preview([

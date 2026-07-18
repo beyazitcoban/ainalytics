@@ -47,8 +47,11 @@ final class AppState {
     func sharedSnapshot(pinned: ProviderID?) -> SharedUsageSnapshot {
         let providers: [SharedUsageSnapshot.Provider] = ProviderID.allCases.compactMap { id in
             let runtime = runtime(for: id)
-            guard runtime.connection.isConnected, !runtime.windows.isEmpty else { return nil }
-            let windows = runtime.windows.map { window in
+            // The widget headlines only the general Session/Weekly windows (Phase 17) —
+            // scoped model/surface limits never reach the App Group snapshot, so the
+            // medium widget can't overflow and its window picker stays Session/Weekly.
+            guard runtime.connection.isConnected, !runtime.generalWindows.isEmpty else { return nil }
+            let windows = runtime.generalWindows.map { window in
                 SharedUsageSnapshot.Window(
                     kind: window.kind.rawValue,
                     title: window.title,
@@ -133,6 +136,13 @@ final class AppState {
                 source.id,
                 ProviderRuntime(
                     connection: .tokenExpired, windows: [], lastFetched: .now, errorMessage: nil,
+                    rawResponse: nil)
+            )
+        } catch UsageDataSourceError.noTrackableUsage {
+            return (
+                source.id,
+                ProviderRuntime(
+                    connection: .noTrackableUsage, windows: [], lastFetched: .now, errorMessage: nil,
                     rawResponse: nil)
             )
         } catch let UsageDataSourceError.endpoint(message) {

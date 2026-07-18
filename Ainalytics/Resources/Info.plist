@@ -32,10 +32,14 @@
     <true/>
     <!-- Sparkle auto-update. SUPublicEDKey is the EdDSA *public* key (safe to
          embed); the matching private key signs each release via `sign_update`
-         and lives only in the macOS Keychain (repo-external). -->
+         and lives in the macOS Keychain + a ~/.signing backup (repo-external).
+         Key rotated 2026-07-16: the original private key was lost in a Mac reset,
+         so a fresh keypair was generated. v1.0.0 users (which embed the old key)
+         must install v1.1 manually once — their auto-update can't verify the new
+         signature; from v1.1 on the new key takes over. -->
     <key>SUFeedURL</key>
     <string>https://raw.githubusercontent.com/beyazitcoban/ainalytics/main/appcast.xml</string>
     <key>SUPublicEDKey</key>
-    <string>4lAX0NzNa68UTGQsZzGKU2uoWMctz3Bkkw75yBfpPY0=</string>
+    <string>F2S5yC0vHFKq5F271LZenveEI8m8qS/k0EE6ag15/a0=</string>
 </dict>
 </plist>

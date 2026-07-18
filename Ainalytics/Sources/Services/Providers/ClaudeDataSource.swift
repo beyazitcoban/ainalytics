@@ -57,32 +57,140 @@ struct ClaudeDataSource: UsageDataSource {
         return UsageReport(windows: Self.parseWindows(from: data), rawResponse: raw)
     }
 
-    /// Extracts every usage window from the body — the common Session + Weekly
-    /// plus model-specific ones (Sonnet, Opus) and any others Anthropic returns.
-    /// Uses `JSONSerialization` so a non-object sibling key (which would break a
-    /// `[String: Decodable]` decode) cannot fail the whole parse; non-window keys
-    /// (e.g. `extra_usage`, which has no `utilization`) are simply skipped.
-    private static func parseWindows(from data: Data) -> [UsageWindow] {
+    /// Extracts the usage windows from the body (Phase 17).
+    ///
+    /// **Primary — the `limits` array.** Anthropic now returns model/surface-specific
+    /// weekly limits (Fable/Sonnet/Opus, Cowork) in a `limits` array alongside the
+    /// plan-wide Session/Weekly, each element carrying a `scope` + `is_active`. When
+    /// present, this is authoritative and is parsed whole.
+    ///
+    /// **Fallback — the legacy top-level keys** (`five_hour`/`seven_day`/…). When the
+    /// `limits` array is absent (or carried nothing usable), the old top-level windows
+    /// are read, so an undocumented-endpoint shape change degrades to Session/Weekly
+    /// instead of breaking (extends the ARCHITECTURE §10 graceful-degradation rule).
+    ///
+    /// `JSONSerialization` (not a typed decode) so a non-object sibling key can't fail
+    /// the whole parse. Internal (not `private`) so the mapping is unit-testable.
+    static func parseWindows(from data: Data) -> [UsageWindow] {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return []
         }
+        // Primary: the `limits` array (plan-wide + model/surface-scoped windows).
+        if let limits = root["limits"] as? [[String: Any]], !limits.isEmpty {
+            let parsed = parseLimits(limits)
+            if !parsed.isEmpty {
+                if parsed.contains(where: \.isGeneral) { return parsed }
+                // Defensive: the array carried only scoped windows — backfill the
+                // first-class Session/Weekly from the legacy keys so the headline
+                // (menu bar / widget / forecast) never vanishes.
+                return parseLegacyWindows(from: root).filter(\.isGeneral) + parsed
+            }
+        }
+        // Fallback: no usable `limits` array → the legacy top-level keys only.
+        return parseLegacyWindows(from: root)
+    }
+
+    // MARK: - `limits` array (primary)
+
+    /// Map each `limits` element to a `UsageWindow`. An element missing a percent is
+    /// skipped (a single malformed element never fails the whole parse).
+    private static func parseLimits(_ limits: [[String: Any]]) -> [UsageWindow] {
+        limits.compactMap(makeLimitWindow)
+    }
+
+    /// One `limits` element:
+    /// `{ group: "session"|"weekly", utilization|percent, resets_at, is_active,
+    ///    scope: { model: { display_name }, surface } }`.
+    private static func makeLimitWindow(from element: [String: Any]) -> UsageWindow? {
+        guard
+            let percent = (element["utilization"] as? NSNumber)?.doubleValue
+                ?? (element["percent"] as? NSNumber)?.doubleValue
+        else { return nil }
+
+        let group = (element["group"] as? String)?.lowercased()
+        let kind: UsageWindowKind =
+            switch group {
+            case "session": .fiveHour
+            case "weekly": .weekly
+            default: .unknown
+            }
+        let scope = parseScope(element["scope"])
+        let isActive = (element["is_active"] as? Bool) ?? true
+        let resetsAt = UsageHTTP.parseISODate(element["resets_at"] as? String)
+
+        let title: String?
+        let id: String
+        switch scope {
+        case .general:
+            // Reuse the legacy ids so notification "armed" memory + snapshot history
+            // carry across the transition from top-level keys to the `limits` array.
+            title = nil
+            switch kind {
+            case .fiveHour: id = "five_hour"
+            case .weekly: id = "seven_day"
+            default: id = "limit_\(group ?? "unknown")"
+            }
+        case .model(let name):
+            title = name
+            id = "seven_day_model_\(name)"
+        case .surface(let name):
+            title = name
+            id = "seven_day_surface_\(name)"
+        }
+
+        return UsageWindow(
+            id: id, kind: kind, title: title, used: percent, limit: 100,
+            resetsAt: resetsAt, scope: scope, isActive: isActive)
+    }
+
+    /// Read a `limits[].scope` object into a `UsageWindowScope`. Model scope wins over
+    /// surface when both are present (the more specific label). A scope value may be a
+    /// nested object (`{ display_name }`) or a bare string. Absent / unrecognized →
+    /// `.general`.
+    private static func parseScope(_ raw: Any?) -> UsageWindowScope {
+        guard let scope = raw as? [String: Any] else { return .general }
+        if let name = displayName(from: scope["model"]) { return .model(name) }
+        if let name = displayName(from: scope["surface"]) { return .surface(name) }
+        return .general
+    }
+
+    /// A scope qualifier's display name from either a `{ display_name | name }` object
+    /// or a bare string (humanized). `nil` when absent / empty.
+    private static func displayName(from raw: Any?) -> String? {
+        if let object = raw as? [String: Any] {
+            let name = (object["display_name"] as? String) ?? (object["name"] as? String)
+            return name.flatMap { $0.isEmpty ? nil : $0 }
+        }
+        if let string = raw as? String, !string.isEmpty {
+            return humanize(string)
+        }
+        return nil
+    }
+
+    // MARK: - Legacy top-level keys (fallback)
+
+    /// The pre-`limits` parse: the common Session + Weekly, plus the old model keys
+    /// (now typically null) as `.model` scoped, plus any remaining utilization-bearing
+    /// key humanized. Used only when the `limits` array is absent.
+    private static func parseLegacyWindows(from root: [String: Any]) -> [UsageWindow] {
         var windows: [UsageWindow] = []
         var seen = Set<String>()
 
-        // Known windows first, in display order, with friendly labels.
         for entry in knownWindowLabels {
-            if let window = Self.makeWindow(
-                key: entry.key, kind: entry.kind, title: entry.title, from: root)
+            if let window = makeWindow(
+                key: entry.key, kind: entry.kind, title: entry.title, scope: entry.scope,
+                from: root)
             {
                 windows.append(window)
                 seen.insert(entry.key)
             }
         }
-        // Any remaining utilization-bearing window — surfaced (humanized) so nothing
-        // is hidden ("hepsi detaylı görünmeli"); explicit labels can be added later.
+        // Any remaining utilization-bearing window — surfaced (humanized, general) so
+        // nothing is hidden; a non-object sibling (e.g. the `limits` array itself, or
+        // `extra_usage` without `utilization`) is simply skipped.
         for key in root.keys.sorted() where !seen.contains(key) {
-            if let window = Self.makeWindow(
-                key: key, kind: .unknown, title: Self.humanize(key), from: root)
+            if let window = makeWindow(
+                key: key, kind: .unknown, title: humanize(key), scope: .general, from: root)
             {
                 windows.append(window)
             }
@@ -90,17 +198,19 @@ struct ClaudeDataSource: UsageDataSource {
         return windows
     }
 
-    /// Window key → (kind, friendly title). Session/Weekly use the localized `kind`
-    /// label (title nil); model windows show their proper noun verbatim.
-    private static let knownWindowLabels: [(key: String, kind: UsageWindowKind, title: String?)] = [
-        ("five_hour", .fiveHour, nil),
-        ("seven_day", .weekly, nil),
-        ("seven_day_sonnet", .unknown, "Sonnet"),
-        ("seven_day_opus", .unknown, "Opus"),
-    ]
+    /// Legacy window key → (kind, friendly title, scope). Session/Weekly are general;
+    /// the old model keys are `.model` scoped so they land in the scoped section too.
+    private static let knownWindowLabels:
+        [(key: String, kind: UsageWindowKind, title: String?, scope: UsageWindowScope)] = [
+            ("five_hour", .fiveHour, nil, .general),
+            ("seven_day", .weekly, nil, .general),
+            ("seven_day_sonnet", .weekly, "Sonnet", .model("Sonnet")),
+            ("seven_day_opus", .weekly, "Opus", .model("Opus")),
+        ]
 
     private static func makeWindow(
-        key: String, kind: UsageWindowKind, title: String?, from root: [String: Any]
+        key: String, kind: UsageWindowKind, title: String?, scope: UsageWindowScope,
+        from root: [String: Any]
     ) -> UsageWindow? {
         guard let window = root[key] as? [String: Any],
             let utilization = (window["utilization"] as? NSNumber)?.doubleValue
@@ -111,7 +221,9 @@ struct ClaudeDataSource: UsageDataSource {
             title: title,
             used: utilization,
             limit: 100,
-            resetsAt: UsageHTTP.parseISODate(window["resets_at"] as? String))
+            resetsAt: UsageHTTP.parseISODate(window["resets_at"] as? String),
+            scope: scope,
+            isActive: true)
     }
 
     /// "seven_day_oauth_apps" → "Seven Day Oauth Apps" — a readable fallback until a

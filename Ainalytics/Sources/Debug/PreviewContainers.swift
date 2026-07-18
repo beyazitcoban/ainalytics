@@ -83,9 +83,20 @@
                         UsageWindow(
                             id: "seven_day", kind: .weekly, title: nil, used: 71, limit: 100,
                             resetsAt: .now.addingTimeInterval(420_000)),
+                        // Scoped (Phase 17): model/surface weekly limits — an active
+                        // model, an active surface, and an inactive model.
                         UsageWindow(
-                            id: "seven_day_sonnet", kind: .unknown, title: "Sonnet", used: 88,
-                            limit: 100, resetsAt: .now.addingTimeInterval(420_000)),
+                            id: "seven_day_model_Opus", kind: .weekly, title: "Opus", used: 88,
+                            limit: 100, resetsAt: .now.addingTimeInterval(420_000),
+                            scope: .model("Opus"), isActive: true),
+                        UsageWindow(
+                            id: "seven_day_surface_Cowork", kind: .weekly, title: "Cowork",
+                            used: 34, limit: 100, resetsAt: .now.addingTimeInterval(420_000),
+                            scope: .surface("Cowork"), isActive: true),
+                        UsageWindow(
+                            id: "seven_day_model_Fable", kind: .weekly, title: "Fable", used: 12,
+                            limit: 100, resetsAt: .now.addingTimeInterval(420_000),
+                            scope: .model("Fable"), isActive: false),
                     ],
                     lastFetched: .now, errorMessage: nil, rawResponse: nil),
                 .codex: ProviderRuntime(

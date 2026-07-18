@@ -62,6 +62,9 @@ private struct GeneralSettingsView: View {
                         Text(style.pickerLabel).tag(style)
                     }
                 }
+                Toggle(
+                    "Show inactive model & surface limits",
+                    isOn: $prefs.showInactiveScopedLimits)
             } header: {
                 Text("General")
             }

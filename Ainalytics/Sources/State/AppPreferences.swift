@@ -42,6 +42,16 @@ final class AppPreferences {
         didSet { UserDefaults.standard.set(resetDisplayStyle.rawValue, forKey: Keys.resetDisplayStyle) }
     }
 
+    /// Whether the dashboard shows Claude's *inactive* model/surface-scoped limits
+    /// (Phase 17). Active scoped limits always show; the inactive ones stay hidden by
+    /// default so a provider card isn't crowded by dormant model windows. Default off.
+    var showInactiveScopedLimits: Bool {
+        didSet {
+            UserDefaults.standard.set(
+                showInactiveScopedLimits, forKey: Keys.showInactiveScopedLimits)
+        }
+    }
+
     /// Selected language code; empty string follows the system language. Writing
     /// it also sets `AppleLanguages` so the chosen localization takes effect — on
     /// the **next launch** (macOS cannot hot-swap a bundle's language at runtime).
@@ -191,6 +201,8 @@ final class AppPreferences {
         resetDisplayStyle =
             ResetDisplayStyle(rawValue: defaults.string(forKey: Keys.resetDisplayStyle) ?? "")
             ?? .relativeDuration
+        // Default off: `bool(forKey:)` returns false when absent, which is the wanted default.
+        showInactiveScopedLimits = defaults.bool(forKey: Keys.showInactiveScopedLimits)
         languageCode = defaults.string(forKey: Keys.language) ?? ""
         disabledProviderIDs = Set(defaults.array(forKey: Keys.disabledProviders) as? [String] ?? [])
         let storedInterval = defaults.integer(forKey: Keys.refreshInterval)
@@ -255,6 +267,7 @@ final class AppPreferences {
         static let menuBarProvider = "pref.menuBarProviderID"
         static let menuBarStyle = "pref.menuBarStyle"
         static let resetDisplayStyle = "pref.resetDisplayStyle"
+        static let showInactiveScopedLimits = "pref.showInactiveScopedLimits"
         static let language = "pref.language"
         static let refreshInterval = "pref.refreshIntervalMinutes"
         static let notificationsEnabled = "pref.notificationsEnabled"

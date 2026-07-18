@@ -39,14 +39,14 @@ struct ProviderLogo: View {
     }
 
     /// Asset-catalog name for a provider's mark. The catalog slugs follow each
-    /// brand's common name (Codex's mark is ChatGPT's), with a `-color` / `-mono`
+    /// brand's common name, with a `-color` / `-mono`
     /// suffix matching the imageset names. Also used by the menu-bar item, which
     /// renders the mono logo through the blessed `MenuBarExtra(_:image:)` path.
     static func assetName(for id: ProviderID, style: Style) -> String {
         let slug =
             switch id {
             case .claude: "claude"
-            case .codex: "chatgpt"
+            case .codex: "codex"
             }
         return "\(slug)-\(style == .color ? "color" : "mono")"
     }

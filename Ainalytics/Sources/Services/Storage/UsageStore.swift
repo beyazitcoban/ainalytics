@@ -22,7 +22,10 @@ enum UsageStore {
         state.statusRaw = runtime.connection.persistedRaw
         state.lastFetchedAt = runtime.lastFetched
 
-        for window in runtime.windows {
+        // Persist only the general Session/Weekly windows (Phase 17): scoped
+        // model/surface limits are a live dashboard detail, kept out of history so
+        // burn-rate/trend/plan-fit stay clean and no SwiftData migration is needed.
+        for window in runtime.generalWindows {
             let snapshot = UsageSnapshot(
                 providerID: providerKey,
                 windowTypeRaw: window.kind.rawValue,

@@ -53,6 +53,16 @@ struct CodexDataSource: UsageDataSource {
             throw UsageDataSourceError.endpoint("Decoding failed: \(error.localizedDescription)")
         }
 
+        // Free plan: the endpoint returns a static, meaningless placeholder — a fixed
+        // used_percent (~5) and a reset_at recomputed as "now + 30 days" on every call
+        // (verified: reset_at drifts forward every request, reset_after_seconds always
+        // equals the full window). There is no real usage window to show, so surface an
+        // honest degraded state instead of a misleading percentage. Paid plans
+        // (plan_type != "free") carry real primary/secondary windows — unchanged.
+        if dto.planType == "free" {
+            throw UsageDataSourceError.noTrackableUsage
+        }
+
         let windows = [dto.rateLimit?.primaryWindow, dto.rateLimit?.secondaryWindow]
             .compactMap { $0 }
             .compactMap(Self.mapWindow)
@@ -123,6 +133,7 @@ private struct CodexAuth: Decodable {
 
 /// Usage response: `{ "rate_limit": { "primary_window", "secondary_window" } }`.
 private struct CodexUsageDTO: Decodable {
+    let planType: String?
     let rateLimit: RateLimit?
 
     struct RateLimit: Decodable {
@@ -149,6 +160,7 @@ private struct CodexUsageDTO: Decodable {
     }
 
     enum CodingKeys: String, CodingKey {
+        case planType = "plan_type"
         case rateLimit = "rate_limit"
     }
 }

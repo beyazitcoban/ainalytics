@@ -1937,6 +1937,50 @@
         }
       }
     },
+    "No limit reported": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Limit gemeldet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin límite informado"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limit raporlanmıyor"
+          }
+        }
+      }
+    },
+    "This plan doesn't report a trackable usage limit.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Tarif meldet kein nachverfolgbares Nutzungslimit."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este plan no informa un límite de uso rastreable."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu plan takip edilebilir bir kullanım limiti raporlamıyor."
+          }
+        }
+      }
+    },
     "Refresh every": {
       "localizations": {
         "de": {
@@ -2813,6 +2857,72 @@
           "stringUnit": {
             "state": "translated",
             "value": "— bir modelin fiyatı mevcut olmadığında gösterilir."
+          }
+        }
+      }
+    },
+    "Model & surface limits": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell- & Oberflächenlimits"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Límites de modelo y superficie"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model ve yüzey limitleri"
+          }
+        }
+      }
+    },
+    "Inactive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inaktiv"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inactivo"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasif"
+          }
+        }
+      }
+    },
+    "Show inactive model & surface limits": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inaktive Modell- & Oberflächenlimits anzeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar límites inactivos de modelo y superficie"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasif model ve yüzey limitlerini göster"
           }
         }
       }
